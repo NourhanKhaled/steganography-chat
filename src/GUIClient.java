@@ -5,10 +5,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,6 +24,8 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
+import javax.imageio.ImageIO;
+
 
 public class GUIClient extends JFrame {
 
@@ -38,6 +45,7 @@ public class GUIClient extends JFrame {
 	JTextArea message;
 	JButton send;
 	JButton sendAll;
+	JButton attachImage;
 	JButton quitButton;
 	JButton serverMembers;
 	JScrollPane chatS;
@@ -47,7 +55,9 @@ public class GUIClient extends JFrame {
 	BufferedReader inFromServer; 
 	String serveroutput;
 	boolean joinFlag;
-	
+	JFileChooser imageChooser;
+	BufferedImage img;
+	File file;
 
 	/**
 	 * Launch the application.
@@ -67,6 +77,7 @@ public class GUIClient extends JFrame {
 			}
 		});
 	}
+	
 
 	/**
 	 * Create the frame.
@@ -113,6 +124,7 @@ public class GUIClient extends JFrame {
 									serverMembers.setVisible(true);
 									send.setVisible(true);
 									sendAll.setVisible(true);
+									attachImage.setVisible(true);
 									contentPane.repaint();
 									contentPane.revalidate();
 								}
@@ -140,6 +152,7 @@ public class GUIClient extends JFrame {
 			}
 
 		});
+		
 		t1.start();
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setBounds(200, 200, 500, 400);
@@ -239,7 +252,6 @@ public class GUIClient extends JFrame {
 		
 		chatS = new JScrollPane();
 		chatS.setBounds(16, 20, 320, 250);
-		
 
 		
 		scrollBar = new JScrollBar();
@@ -304,6 +316,9 @@ public class GUIClient extends JFrame {
 		message.setVisible(false);
 		contentPane.add(message);
 		
+		
+		// JUICE STARTS HERE
+		
 		send = new JButton("Send");
 		send.setBounds(366, 299, 72, 29);
 		send.addActionListener(new ActionListener() {
@@ -315,6 +330,12 @@ public class GUIClient extends JFrame {
 				
 				else{
 				try {
+					// TODO: Call steganography , encrypt then send message to server
+					
+					Steganography steg = new Steganography();
+//					boolean success = Steg.encode(path, original, ext1, stegan, message);
+					
+					
 					outToServer.writeBytes("Chat("+destination.getText()+","+message.getText()+","+"2)\n");
 					chat.append("To: " + destination.getText() + " Message: " + message.getText() + "\n" );
 					destination.setText(null);
@@ -330,6 +351,37 @@ public class GUIClient extends JFrame {
 		send.setVisible(false);
 		contentPane.add(send);
 		
+		imageChooser = new JFileChooser();
+		imageChooser.setAcceptAllFileFilterUsed(false);
+		imageChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG files", "png"));
+		imageChooser.addChoosableFileFilter(new FileNameExtensionFilter("BMP files", "bmp"));
+		imageChooser.addChoosableFileFilter(new FileNameExtensionFilter("JPG files", "jpg"));
+		imageChooser.addChoosableFileFilter(new FileNameExtensionFilter("GIF files", "gif"));
+		
+		JButton imageSelect = new JButton("Image");
+		imageSelect.setBounds(366, 200, 72, 29);
+		imageSelect.setFocusable(false);
+		imageSelect.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent arg0) {
+				selectImage();
+				try {
+					// TODO: ENCRYPT
+					outToServer.writeBytes("AddImage("+img+")\n");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				//System.out.println(""+imageChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY));
+				//System.out.println(imageChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES));
+				
+
+			}
+			
+		});
+		
+		contentPane.add(imageSelect);
 		
 		sendAll = new JButton("Send All");
 		sendAll.setBounds(366, 250, 72, 29);
@@ -374,6 +426,26 @@ public class GUIClient extends JFrame {
 		
 
 
+	}
+	
+	private void selectImage() {
+		int returnVal = imageChooser.showDialog(this, "Open");
+	    if(returnVal == JFileChooser.APPROVE_OPTION) {
+	    	try {
+	    		file = imageChooser.getSelectedFile();
+	    		System.out.println(file.getName());
+	    		System.out.println(file.getParent());
+				img = ImageIO.read(imageChooser.getSelectedFile());
+				
+				
+//				format = HidePanel.getImageFormat(imageChooser.getSelectedFile());
+//				int c = new StegoImage(img, StegoImage.HIDE_MODE).getMaxHideCapacity();
+//				String msg = "The hide capacity for \"" + imageChooser.getSelectedFile().getName() + "\" is " + c + " bytes";
+//				messageDialog.showInfo(msg);
+			} catch (Exception ex) {
+//				messageDialog.showError("Could not read the image");
+			}
+	    }
 	}
 }
 

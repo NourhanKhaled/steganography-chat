@@ -118,6 +118,10 @@ public class TCPServer implements  Runnable
 									}
 								}
 							}
+							else
+							{
+								
+							}
 						}
 				}
 				String serverInput1 = serverInput.toUpperCase();
