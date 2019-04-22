@@ -323,29 +323,7 @@ public class GUIClient extends JFrame {
 		send.setBounds(366, 299, 72, 29);
 		send.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(message.getText().length()==0)
-					chat.append("You must enter a message\n");
-				else if(destination.getText().length()==0)
-					chat.append("You must enter a destination\n");
-				
-				else{
-				try {
-					// TODO: Call steganography , encrypt then send message to server
-					
-					Steganography steg = new Steganography();
-//					boolean success = Steg.encode(path, original, ext1, stegan, message);
-					
-					
-					outToServer.writeBytes("Chat("+destination.getText()+","+message.getText()+","+"2)\n");
-					chat.append("To: " + destination.getText() + " Message: " + message.getText() + "\n" );
-					destination.setText(null);
-
-					message.setText("");
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				}
+				send();
 			}
 		});
 		send.setVisible(false);
@@ -387,20 +365,7 @@ public class GUIClient extends JFrame {
 		sendAll.setBounds(366, 250, 72, 29);
 		sendAll.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(message.getText().length()==0)
-					chat.append("You must enter a message\n");
-				
-				else{
-				try {
-					outToServer.writeBytes("Chat("+"Lobby"+","+message.getText()+","+"2)\n");
-					chat.append("To: Lobby Message: " + message.getText() + "\n" );
-					destination.setText(null);
-					message.setText("");
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				}
+				sendAll();
 			}
 		});
 		sendAll.setVisible(false);
@@ -447,6 +412,62 @@ public class GUIClient extends JFrame {
 			}
 	    }
 	}
+	
+	private void send(){
+		if(message.getText().length()==0)
+			chat.append("You must enter a message\n");
+		else if(destination.getText().length()==0)
+			chat.append("You must enter a destination\n");
+		
+		else{
+		try {
+			// TODO: Call steganography , encrypt then send message to server
+			if(file == null){
+				chat.append("Please choose an image before sending!");
+				return;
+			}
+				
+			Steganography steg = new Steganography();
+			boolean success = steg.encode(file.getParent(), file.getName(), "jpg", "encoded_" + file.getName() , message.getText());
+			String newName = file.getParent() + "encoded_" + file.getName();
+			System.out.println(newName);
+			File encFile = new File(newName);
+			
+			outToServer.writeBytes("Chat("+destination.getText()+","+message.getText()+","+"2)\n");
+			chat.append("To: " + destination.getText() + " Message: " + message.getText() + "\n" );
+			destination.setText(null);
+
+			message.setText("");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		}
+	}
+	
+	private void sendAll(){
+		
+		if(message.getText().length()==0)
+			chat.append("You must enter a message\n");
+		
+		else{
+		try {
+			outToServer.writeBytes("Chat("+"Lobby"+","+message.getText()+","+"2)\n");
+			chat.append("To: Lobby Message: " + message.getText() + "\n" );
+			destination.setText(null);
+			message.setText("");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		}
+		
+	}
+	
+	private void encrypt(){
+		
+	}
+	
 }
 
 
