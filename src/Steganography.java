@@ -44,9 +44,9 @@ public class Steganography
 	public boolean encode(String path, String original, String ext1, String stegan, String message)
 	{
 		String			file_name 	= path + "/" + original;
-		System.out.println("HAHAHAHAHA "+file_name);
+		//System.out.println("HAHAHAHAHA "+file_name);
 		BufferedImage 	image_orig	= getImage(file_name);
-		System.out.println("imageeee" + image_orig);
+		//System.out.println("imageeee" + image_orig);
 		//user space is not necessary for Encrypting
 		BufferedImage image = user_space(image_orig);
 		image = add_text(image,message);
@@ -251,7 +251,7 @@ public class Steganography
 	 *@param image Array of data, representing an image
 	 *@return Array of data which contains the hidden text
 	 */
-	private byte[] decode_text(byte[] image)
+	public byte[] decode_text(byte[] image)
 	{
 		int length = 0;
 		int offset  = 32;

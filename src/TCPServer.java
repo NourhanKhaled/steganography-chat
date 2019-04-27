@@ -59,62 +59,53 @@ public class TCPServer implements  Runnable
 				outToClient = 
 						new DataOutputStream(connectionSocket.getOutputStream());
 
-				serverInput = EncryptDecrypt.decrypt("Bar12345Bar12345", "RandomInitVector", inFromClient.readLine());//this line often causes an exception to be thrown so i surrounded it with a try and catch
-				System.out.println("SERVER INPUT " + serverInput);
+//				serverInput = EncryptDecrypt.decrypt("Bar12345Bar12345", "RandomInitVector", inFromClient.readLine());//this line often causes an exception to be thrown so i surrounded it with a try and catch
+				serverInput = inFromClient.readLine();//this line often causes an exception to be thrown so i surrounded it with a try and catch
+			//	System.out.println("SERVER INPUT " + serverInput.substring(1, 5));
 				if(serverInput!=null){
 
 
-					System.out.println("CLIENT: "+serverInput);
-					if(serverInput.startsWith("join(") && serverInput.endsWith(")\n"))
+				//	System.out.println("CLIENT: "+serverInput);
+					if(serverInput.startsWith("join("))
 						JoinResponse();
-					else if(serverInput.startsWith("signUp(") && serverInput.endsWith(")\n"))
+					else if(serverInput.startsWith("signUp("))
 						SignUpResponse();
-					else if(serverInput.startsWith("signIn(") && serverInput.endsWith(")\n"))
+					else if(serverInput.startsWith("signIn("))
 						SignInResponse();
-					 else
-						if(serverInput.contains("GetMemberList()")){
-							if(joinFlag==false){
-								clientOutput = "SERVER: You are not signed in yet";
-								outToClient.writeBytes(clientOutput);
-							}
-							else 
-								MemberListResponse();
-						}
-
-						else if(serverInput.contains("GetMembers()")){
+					 else if(serverInput.contains("GetMembers()")){
 							MemberResponse();
+							System.out.println("in getmembers f");
 						}
 
 						else {
-							if(serverInput.contains("Chat(")){
+							if(serverInput.startsWith("Chat:")){
 								if(joinFlag==false){
 									clientOutput = "SERVER: You are not signed in yet";
 									outToClient.writeBytes(clientOutput);
 								}
 								else{
-									
-									StringTokenizer st = new StringTokenizer(serverInput, ",");
-									String d = st.nextToken();
-									String d1 = d.substring(5);
-									
+									System.out.println("INSIDE CHAT");
+									StringTokenizer st = new StringTokenizer(serverInput, ";");
+									String dest = st.nextToken();
+									String destName = dest.substring(5);
+									System.out.println(destName);
 									String m = st.nextToken();
-									String t = st.nextToken();
-									int ttl = Integer.parseInt(t.substring(0,t.length()-1));
+									int ttl = 11;
 									String x = "";
 									for(int i=0; i<sockets.size();i++){
 										if(sockets.get(i) == connectionSocket){
 											x = members.get(i);
 										}
 									}
-									String y = " "+m+" From: "+x;
-									if(d1.equals("Lobby")){
+									String y = "From:"+x+";"+m;
+									if(destName.equals("Lobby")){
 										for(int i=0;i<members.size();i++){
 											if(sockets.get(i) != connectionSocket)
 												Route(y,members.get(i),ttl);
 										}
 									}
 									else{
-										Route(y,d1,ttl); 
+										Route(y,destName,ttl); 
 									}
 								}
 							}
@@ -137,7 +128,7 @@ public class TCPServer implements  Runnable
 
 					clientOutput= "TERMINATED";
 					String x = "";
-					System.out.println("SERVER: "+clientOutput);
+					//System.out.println("SERVER: "+clientOutput);
 					for(int i=0; i<sockets.size();i++){
 						if(connectionSocket.equals(sockets.get(i))){
 							x = members.get(i);
@@ -183,7 +174,7 @@ public class TCPServer implements  Runnable
 				{
 
 					clientOutput =  "" + '\n';
-					System.out.print(""+clientOutput);
+					//System.out.print(""+clientOutput);
 
 				}
 
@@ -199,18 +190,7 @@ public class TCPServer implements  Runnable
 
 
 	}
-	public void MemberListResponse() throws IOException
-	{
 
-		clientOutput="Members: ";
-		for(int i=0; i<Allmembers.size();i++){
-			if(!(Allmembers.get(i).contains("server")))
-				clientOutput+=Allmembers.get(i)+", ";
-
-		}
-		outToClient.writeBytes(clientOutput+"\n");
-		System.out.println(clientOutput);
-	}
 		public void MemberResponse() throws IOException
 	{
 		clientOutput="Members: ";
@@ -220,7 +200,7 @@ public class TCPServer implements  Runnable
 
 		}
 		outToClient.writeBytes(clientOutput+"\n");
-		System.out.println(clientOutput);
+		//System.out.println("CO " + clientOutput);
 
 	}
 
@@ -233,7 +213,7 @@ public class TCPServer implements  Runnable
 				if(x.contains(",")){
 					clientOutput = "Not Joined";
 					outToClient.writeBytes(clientOutput);
-					System.out.println(clientOutput);
+					//System.out.println(clientOutput);
 
 				}
 			
@@ -246,7 +226,7 @@ public class TCPServer implements  Runnable
 					if(Allmembers.get(i).equals(x)){
 						clientOutput = "Not joined";
 						outToClient.writeBytes(clientOutput);
-						System.out.println(clientOutput);
+						//System.out.println(clientOutput);
 						return;
 					}
 
@@ -260,7 +240,7 @@ public class TCPServer implements  Runnable
 					{
 						clientOutput = "Not joined";
 						outToClient.writeBytes(clientOutput);
-						System.out.println(clientOutput);
+						//System.out.println(clientOutput);
 						return;
 					}
 				}
@@ -285,8 +265,8 @@ public class TCPServer implements  Runnable
 
 	
 	public void SignUpResponse() throws IOException{
-		String x = serverInput.substring(7,serverInput.length()-2);
-		System.out.println("TCP SERVER INPUT " + x);
+		String x = serverInput.substring(7,serverInput.length()-1);
+		//System.out.println("TCP SERVER INPUT " + x);
 		String [] vals = x.split(",");
 		String username = vals[0];
 		String password = vals[1];
@@ -309,15 +289,15 @@ public class TCPServer implements  Runnable
 		String [] vals = x.split(",");
 		String username = vals[0];
 		String password = vals[1];
-		System.out.println(password);
+		//System.out.println(password);
 		
 		String response = Authentication.signIn(username, password);
 		if(response.equals("joined!"))
 			joinFlag = true;
 		
-		System.out.println("ANA HENA");
+		//System.out.println("ANA HENA");
 		outToClient.writeBytes(response);
-		System.out.println(response);
+		//System.out.println(response);
 		
 	}
 
@@ -325,28 +305,31 @@ public class TCPServer implements  Runnable
 	public void Route(String Message, String Destination, int TTL) throws IOException
 	{	
 
-		if(!(Allmembers.contains(Destination)))
-		{
+//		if(!(Allmembers.contains(Destination)))
+//		{
+//
+//			ServerMessage="SERVER: Member doesn't exist or is currently offline";
+//			//System.out.println(ServerMessage);
+//			outToClient.writeBytes(ServerMessage+"\n");
+//		}
 
-			ServerMessage="SERVER: Member doesn't exist or is currently offline";
-			System.out.println(ServerMessage);
-			outToClient.writeBytes(ServerMessage+"\n");
-		}
-
-		else{ if(members.contains(Destination)){
+		 if(members.contains(Destination)){
 			for(int i=0; i<members.size();i++)
 			{
 				if(members.get(i).equals(Destination))
 				{
-					System.out.println("SERVER: To "+Destination+" Message "+Message);
+					System.out.println("sending to dest");
+					//System.out.println("SERVER: To "+Destination+" Message "+Message);
 					OutputStream os = (sockets.get(i)).getOutputStream();
 					DataOutputStream outToOtherClient = new DataOutputStream(os);
-					outToOtherClient.writeBytes(Message + '\n');
+					System.out.println(Message.substring(0,15));
+					outToOtherClient.writeBytes("hamada");
+					outToOtherClient.writeBytes(Message.substring(0,15)+"\n");
 
 				}
 			}
 		}
-		}
+		
 	}
 }
 

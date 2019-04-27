@@ -60,6 +60,7 @@ public class GUIClient extends JFrame {
 	boolean joinFlag;
 
 	JFileChooser imageChooser;
+	Steganography steg = new Steganography();
 	BufferedImage img;
 	File file;
 
@@ -67,6 +68,7 @@ public class GUIClient extends JFrame {
 	 * Launch the application.
 	 * @throws IOException 
 	 */
+
 	public static void main(String[] args) throws IOException {
 		
 
@@ -105,13 +107,15 @@ public class GUIClient extends JFrame {
 					{
 						inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 						serveroutput = inFromServer.readLine();
+						System.out.println(serveroutput);
 						if(serveroutput!=null){
+							System.out.println("OUTPUT: " + serveroutput);
 							if(serveroutput.equals("Not joined")){
 								afterName.setText("Name already in use, choose another one");
 								afterName.setVisible(true);
 							}
 							else{
-								if(serveroutput.equals("joined!")){
+								if(serveroutput.equals("joined!")) {
 									signIn.setVisible(false);
 									signUp.setVisible(false);
 									afterName.setVisible(false);
@@ -135,12 +139,24 @@ public class GUIClient extends JFrame {
 								}
 								else{
 									if(serveroutput.contains("Members:")){
+										System.out.println(" from server " + serveroutput);
 										chat.append(serveroutput+"\n");
 										chat.repaint();
 										chat.revalidate();
 									}
-									else if(serveroutput.length()>0)
-										chat.append(serveroutput+"\n");
+									else if(serveroutput.length()>0) {
+//										chat.append(serveroutput+"\n");
+										String [] vals = serveroutput.split(";");
+										String source = vals[0]; //TODO split from										
+										byte [] imageContent = Base64.getDecoder().decode(vals[1]);
+										
+										byte [] message = steg.decode_text(imageContent);
+										String decodedMessage = new String(message);
+										chat.append(source + " " + decodedMessage);
+										System.out.println("DECODED MESSAGE " + decodedMessage);
+										
+									}
+										
 								}
 							}
 							
@@ -199,7 +215,7 @@ public class GUIClient extends JFrame {
 					// TODO: ENCRYPT AND SEND PASSWORD 
 					//System.out.println("INSERTED PASSWORD " +passwordArea.getText());
 					String output = "signIn("+nameArea.getText()+"," + passwordArea.getText()+")\n";
-					output = EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector", output) + "\n";
+//					output = EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector", output) + "\n";
 					outToServer.writeBytes(output);
 					passwordArea.setText("");
 					}
@@ -426,7 +442,7 @@ public class GUIClient extends JFrame {
 				return;
 			}
 				
-			Steganography steg = new Steganography();
+			
 			boolean success = steg.encode(file.getParent(), file.getName(), "jpg", "encoded_" + file.getName() , message.getText());
 			String newName = file.getParent() + "/encoded_" + file.getName() + ".png";
 			
@@ -438,7 +454,9 @@ public class GUIClient extends JFrame {
 			String encodedString = Base64.getEncoder().encodeToString(imageContent);
 			
 //			System.out.println("encoded " + encodedString);
-			outToServer.writeBytes(EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector", encodedString));
+//			outToServer.writeBytes(EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector", encodedString));
+			outToServer.writeBytes("Chat:" + destination.getText() + ";" + encodedString + "\n");
+			
 			
 			String res = steg.decode(newName);
 //			chat.append("To: " + destination.getText() + " Message: " + message.getText() + "\n" );
@@ -470,10 +488,7 @@ public class GUIClient extends JFrame {
 		}
 		
 	}
-	
-	private void encrypt(){
-		
-	}
+
 	
 }
 
