@@ -3,6 +3,7 @@
  *@author  William_Wilson
  *@version 1.6
  *Created: May 8, 2007
+ *  https://www.dreamincode.net/forums/topic/27950-steganography/
  */
 
 /*
