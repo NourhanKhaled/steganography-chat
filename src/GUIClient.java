@@ -7,11 +7,12 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
+import java.util.Base64;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import javax.swing.JFileChooser;
@@ -27,8 +28,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 import javax.imageio.ImageIO;
-
-
+import org.apache.commons.io.FileUtils; 
 
 public class GUIClient extends JFrame {
 
@@ -145,7 +145,7 @@ public class GUIClient extends JFrame {
 							}
 							
 							
-							System.out.println(serveroutput);
+							//System.out.println(serveroutput);
 						}
 					} 
 					catch (Exception e) 
@@ -197,9 +197,10 @@ public class GUIClient extends JFrame {
 				else{
 				try {
 					// TODO: ENCRYPT AND SEND PASSWORD 
-					System.out.println("INSERTED PASSWORD " +passwordArea.getText());
-					
-					outToServer.writeBytes("signIn("+nameArea.getText()+"," + passwordArea.getText()+")\n");
+					//System.out.println("INSERTED PASSWORD " +passwordArea.getText());
+					String output = "signIn("+nameArea.getText()+"," + passwordArea.getText()+")\n";
+					output = EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector", output) + "\n";
+					outToServer.writeBytes(output);
 					passwordArea.setText("");
 					}
 				 catch (IOException e1) {
@@ -327,28 +328,7 @@ public class GUIClient extends JFrame {
 		send.setBounds(366, 299, 72, 29);
 		send.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(message.getText().length()==0)
-					chat.append("You must enter a message\n");
-				else if(destination.getText().length()==0)
-					chat.append("You must enter a destination\n");
-				
-				else{
-				try {
-					
-					Steganography steg = new Steganography();
-//					boolean success = Steg.encode(path, original, ext1, stegan, message);
-					
-					
-					outToServer.writeBytes("Chat("+destination.getText()+","+message.getText()+","+"2)\n");
-					chat.append("To: " + destination.getText() + " Message: " + message.getText() + "\n" );
-					destination.setText(null);
-
-					message.setText("");
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				}
+				send();
 			}
 		});
 		send.setVisible(false);
@@ -369,14 +349,6 @@ public class GUIClient extends JFrame {
 			
 			public void actionPerformed(ActionEvent arg0) {
 				selectImage();
-				try {
-					// TODO: ENCRYPT
-					outToServer.writeBytes("AddImage("+img+")\n");
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
 				//System.out.println(""+imageChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY));
 				//System.out.println(imageChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES));
 				
@@ -391,20 +363,7 @@ public class GUIClient extends JFrame {
 		sendAll.setBounds(366, 250, 72, 29);
 		sendAll.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(message.getText().length()==0)
-					chat.append("You must enter a message\n");
-				
-				else{
-				try {
-					outToServer.writeBytes("Chat("+"Lobby"+","+message.getText()+","+"2)\n");
-					chat.append("To: Lobby Message: " + message.getText() + "\n" );
-					destination.setText(null);
-					message.setText("");
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				}
+				sendAll();
 			}
 		});
 		sendAll.setVisible(false);
@@ -438,8 +397,8 @@ public class GUIClient extends JFrame {
 	    if(returnVal == JFileChooser.APPROVE_OPTION) {
 	    	try {
 	    		file = imageChooser.getSelectedFile();
-	    		System.out.println(file.getName());
-	    		System.out.println(file.getParent());
+	    		//System.out.println(file.getName());
+	    		//System.out.println(file.getParent());
 				img = ImageIO.read(imageChooser.getSelectedFile());
 				
 				
@@ -452,6 +411,70 @@ public class GUIClient extends JFrame {
 			}
 	    }
 	}
+	
+	private void send(){
+		if(message.getText().length()==0)
+			chat.append("You must enter a message\n");
+		else if(destination.getText().length()==0)
+			chat.append("You must enter a destination\n");
+		
+		else{
+		try {
+			// TODO: Call steganography , encrypt then send message to server
+			if(file == null){
+				chat.append("Please choose an image before sending!");
+				return;
+			}
+				
+			Steganography steg = new Steganography();
+			boolean success = steg.encode(file.getParent(), file.getName(), "jpg", "encoded_" + file.getName() , message.getText());
+			String newName = file.getParent() + "/encoded_" + file.getName() + ".png";
+			
+			File encFile = new File(newName);
+			System.out.println(newName);
+			byte[] imageContent = new byte[(int) encFile.length()];
+			FileInputStream inStream = new FileInputStream(encFile);
+			inStream.read(imageContent);
+			String encodedString = Base64.getEncoder().encodeToString(imageContent);
+			
+//			System.out.println("encoded " + encodedString);
+			outToServer.writeBytes(EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector", encodedString));
+			
+			String res = steg.decode(newName);
+//			chat.append("To: " + destination.getText() + " Message: " + message.getText() + "\n" );
+			destination.setText(null);
+
+			message.setText("");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		}
+	}
+	
+	private void sendAll(){
+		
+		if(message.getText().length()==0)
+			chat.append("You must enter a message\n");
+		
+		else{
+		try {
+			outToServer.writeBytes("Chat("+"Lobby"+","+message.getText()+","+"2)\n");
+			chat.append("To: Lobby Message: " + message.getText() + "\n" );
+			destination.setText(null);
+			message.setText("");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		}
+		
+	}
+	
+	private void encrypt(){
+		
+	}
+	
 }
 
 

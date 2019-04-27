@@ -59,17 +59,17 @@ public class TCPServer implements  Runnable
 				outToClient = 
 						new DataOutputStream(connectionSocket.getOutputStream());
 
-				serverInput = inFromClient.readLine();//this line often causes an exception to be thrown so i surrounded it with a try and catch
-
+				serverInput = EncryptDecrypt.decrypt("Bar12345Bar12345", "RandomInitVector", inFromClient.readLine());//this line often causes an exception to be thrown so i surrounded it with a try and catch
+				System.out.println("SERVER INPUT " + serverInput);
 				if(serverInput!=null){
 
 
 					System.out.println("CLIENT: "+serverInput);
-					if(serverInput.startsWith("join(") && serverInput.endsWith(")"))
+					if(serverInput.startsWith("join(") && serverInput.endsWith(")\n"))
 						JoinResponse();
-					else if(serverInput.startsWith("signUp(") && serverInput.endsWith(")"))
+					else if(serverInput.startsWith("signUp(") && serverInput.endsWith(")\n"))
 						SignUpResponse();
-					else if(serverInput.startsWith("signIn(") && serverInput.endsWith(")"))
+					else if(serverInput.startsWith("signIn(") && serverInput.endsWith(")\n"))
 						SignInResponse();
 					 else
 						if(serverInput.contains("GetMemberList()")){
@@ -285,7 +285,7 @@ public class TCPServer implements  Runnable
 
 	
 	public void SignUpResponse() throws IOException{
-		String x = serverInput.substring(7,serverInput.length()-1);
+		String x = serverInput.substring(7,serverInput.length()-2);
 		System.out.println("TCP SERVER INPUT " + x);
 		String [] vals = x.split(",");
 		String username = vals[0];
@@ -304,19 +304,20 @@ public class TCPServer implements  Runnable
 	
 	public void SignInResponse() throws IOException{
 		
-		String x = serverInput.substring(7,serverInput.length()-1);
+		String x = serverInput.substring(7,serverInput.length()-2);
 		
 		String [] vals = x.split(",");
 		String username = vals[0];
 		String password = vals[1];
-		
+		System.out.println(password);
 		
 		String response = Authentication.signIn(username, password);
 		if(response.equals("joined!"))
 			joinFlag = true;
 		
 		System.out.println("ANA HENA");
-		outToClient.writeBytes(response);	
+		outToClient.writeBytes(response);
+		System.out.println(response);
 		
 	}
 

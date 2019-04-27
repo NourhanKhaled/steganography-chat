@@ -43,9 +43,10 @@ public class Steganography
 	 */
 	public boolean encode(String path, String original, String ext1, String stegan, String message)
 	{
-		String			file_name 	= image_path(path,original,ext1);
+		String			file_name 	= path + "/" + original;
+		System.out.println("HAHAHAHAHA "+file_name);
 		BufferedImage 	image_orig	= getImage(file_name);
-		
+		System.out.println("imageeee" + image_orig);
 		//user space is not necessary for Encrypting
 		BufferedImage image = user_space(image_orig);
 		image = add_text(image,message);
@@ -59,13 +60,13 @@ public class Steganography
 	 *@param name The name of the image to extract the message from
 	 *@param type integer representing either basic or advanced encoding
 	 */
-	public String decode(String path, String name)
+	public String decode(String name)
 	{
 		byte[] decode;
 		try
 		{
 			//user space is necessary for decrypting
-			BufferedImage image  = user_space(getImage(image_path(path,name,"png")));
+			BufferedImage image  = user_space(getImage(name));
 			decode = decode_text(get_byte_data(image));
 			return(new String(decode));
 		}
