@@ -285,14 +285,16 @@ public class TCPServer implements  Runnable
 	
 	public void SignInResponse() throws IOException{
 		
-		String x = serverInput.substring(7,serverInput.length()-2);
-		
+		String x = serverInput.substring(7,serverInput.length()-1);
+		System.out.println("SIGN IN RESPONSE: " + serverInput);
+		System.out.println("SPLIT: " + x);
 		String [] vals = x.split(",");
 		String username = vals[0];
 		String password = vals[1];
-		//System.out.println(password);
+		System.out.println(username + " " + password);
 		
 		String response = Authentication.signIn(username, password);
+		System.out.println("RESPONSE: " + response);
 		if(response.equals("joined!")) {
 			joinFlag = true;
 			Allmembers.add(username);

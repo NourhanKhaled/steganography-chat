@@ -215,19 +215,19 @@ public class GUIClient extends JFrame {
 					afterName.setText("Please enter a password!");					
 				}
 				else{
-				try {
-					// TODO: ENCRYPT AND SEND PASSWORD 
-					//System.out.println("INSERTED PASSWORD " +passwordArea.getText());
-					String output = "signIn("+nameArea.getText()+"," + passwordArea.getText()+")\n";
-//					output = EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector", output) + "\n";
-					System.out.println(output);
-					outToServer.writeBytes(output);
-					passwordArea.setText("");
+					try {
+						// TODO: ENCRYPT AND SEND PASSWORD 
+						//System.out.println("INSERTED PASSWORD " +passwordArea.getText());
+						String output = "signIn("+nameArea.getText()+"," + passwordArea.getText()+")\n";
+	//					output = EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector", output) + "\n";
+						System.out.println(output);
+						outToServer.writeBytes(output);
+						passwordArea.setText("");
+						}
+					 catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
-				 catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
 				}
 				
 			}
