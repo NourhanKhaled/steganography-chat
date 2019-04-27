@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 
 import java.io.File;
@@ -48,7 +49,6 @@ public class GUIClient extends JFrame {
 	JTextArea message;
 	JButton send;
 	JButton sendAll;
-	JButton attachImage;
 	JButton quitButton;
 	JButton serverMembers;
 	JScrollPane chatS;
@@ -107,9 +107,9 @@ public class GUIClient extends JFrame {
 					{
 						inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 						serveroutput = inFromServer.readLine();
-						System.out.println(serveroutput);
+						//System.out.println(serveroutput);
 						if(serveroutput!=null){
-							System.out.println("OUTPUT: " + serveroutput);
+							//System.out.println("OUTPUT: " + serveroutput);
 							if(serveroutput.equals("Not joined")){
 								afterName.setText("Name already in use, choose another one");
 								afterName.setVisible(true);
@@ -132,8 +132,6 @@ public class GUIClient extends JFrame {
 									serverMembers.setVisible(true);
 									send.setVisible(true);
 									sendAll.setVisible(true);
-
-									attachImage.setVisible(true);
 									contentPane.repaint();
 									contentPane.revalidate();
 								}
@@ -149,9 +147,15 @@ public class GUIClient extends JFrame {
 										String [] vals = serveroutput.split(";");
 										String source = vals[0]; //TODO split from										
 										byte [] imageContent = Base64.getDecoder().decode(vals[1]);
-										
-										byte [] message = steg.decode_text(imageContent);
+										ByteArrayInputStream bis = new ByteArrayInputStream(imageContent);
+									    BufferedImage bImage2 = ImageIO.read(bis);
+									    ImageIO.write(bImage2, "png", new File("output.png") );
+										System.out.println("IMAGE LENGTH: " + imageContent.length);
+										String message = steg.decode("output.png");
+										System.out.println("HHEHEHEHEHEHEH!!");
 										String decodedMessage = new String(message);
+										System.out.println("HgoiiuH!!");
+
 										chat.append(source + " " + decodedMessage);
 										System.out.println("DECODED MESSAGE " + decodedMessage);
 										
@@ -216,6 +220,7 @@ public class GUIClient extends JFrame {
 					//System.out.println("INSERTED PASSWORD " +passwordArea.getText());
 					String output = "signIn("+nameArea.getText()+"," + passwordArea.getText()+")\n";
 //					output = EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector", output) + "\n";
+					System.out.println(output);
 					outToServer.writeBytes(output);
 					passwordArea.setText("");
 					}
@@ -451,6 +456,7 @@ public class GUIClient extends JFrame {
 			byte[] imageContent = new byte[(int) encFile.length()];
 			FileInputStream inStream = new FileInputStream(encFile);
 			inStream.read(imageContent);
+			System.out.println("SENDER IMAGE LENGTH " + imageContent.length);
 			String encodedString = Base64.getEncoder().encodeToString(imageContent);
 			
 //			System.out.println("encoded " + encodedString);
@@ -458,7 +464,7 @@ public class GUIClient extends JFrame {
 			outToServer.writeBytes("Chat:" + destination.getText() + ";" + encodedString + "\n");
 			
 			
-			String res = steg.decode(newName);
+//			String res = steg.decode(newName);
 //			chat.append("To: " + destination.getText() + " Message: " + message.getText() + "\n" );
 			destination.setText(null);
 

@@ -195,7 +195,6 @@ public class TCPServer implements  Runnable
 	{
 		clientOutput="Members: ";
 		for(int i=0; i<members.size();i++){
-			if(!(members.get(i).equals("serverB")))
 				clientOutput+=members.get(i)+", ";
 
 		}
@@ -273,10 +272,12 @@ public class TCPServer implements  Runnable
 		
 		
 		String response = Authentication.signUp(username, password);
-		if(response.equals("joined!"))
+		if(response.equals("joined!")) {
+			
 			joinFlag = true;
 			Allmembers.add(username);
 			members.add(username);
+		}
 		
 		outToClient.writeBytes(response);	
 		
@@ -292,9 +293,11 @@ public class TCPServer implements  Runnable
 		//System.out.println(password);
 		
 		String response = Authentication.signIn(username, password);
-		if(response.equals("joined!"))
+		if(response.equals("joined!")) {
 			joinFlag = true;
-		
+			Allmembers.add(username);
+			members.add(username);
+		}
 		//System.out.println("ANA HENA");
 		outToClient.writeBytes(response);
 		//System.out.println(response);
@@ -323,8 +326,8 @@ public class TCPServer implements  Runnable
 					OutputStream os = (sockets.get(i)).getOutputStream();
 					DataOutputStream outToOtherClient = new DataOutputStream(os);
 					System.out.println(Message.substring(0,15));
-					outToOtherClient.writeBytes("hamada");
-					outToOtherClient.writeBytes(Message.substring(0,15)+"\n");
+					//outToOtherClient.writeBytes("hamada");
+					outToOtherClient.writeBytes(Message+"\n");
 
 				}
 			}
