@@ -322,11 +322,7 @@ public class GUIClient extends JFrame {
 
 		imageChooser = new JFileChooser();
 		imageChooser.setAcceptAllFileFilterUsed(false);
-		imageChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG files", "png"));
-		imageChooser.addChoosableFileFilter(new FileNameExtensionFilter("BMP files", "bmp"));
 		imageChooser.addChoosableFileFilter(new FileNameExtensionFilter("JPG files", "jpg"));
-		imageChooser.addChoosableFileFilter(new FileNameExtensionFilter("GIF files", "gif"));
-
 		imageSelect = new JButton("Image");
 		imageSelect.setBounds(366, 240, 72, 29);
 		imageSelect.setFocusable(false);
