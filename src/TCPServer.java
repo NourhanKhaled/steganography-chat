@@ -254,8 +254,10 @@ public class TCPServer implements Runnable {
 		String response = Authentication.signIn(username, password);
 		if (response.equals("joined!")) {
 			joinFlag = true;
-			Allmembers.add(username);
-			members.add(username);
+			if(!Allmembers.contains(username))
+				Allmembers.add(username);
+			if(!members.contains(username))
+				members.add(username);
 		}
 		// System.out.println("ANA HENA");
 		outToClient.writeBytes(response);

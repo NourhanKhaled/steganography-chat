@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
  * images
  * 
  * TODO: check the definition of PSNR
+ * https://www.programcreek.com/java-api-examples/?code=Theldus/PSE/PSE-master/src/sample/nodes/MSE.java
  * 
  * @author Abdullah
  */

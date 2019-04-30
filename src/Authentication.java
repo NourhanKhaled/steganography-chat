@@ -83,14 +83,14 @@ public class Authentication {
 	            byte [] salt = getSalt();
 	            
 	            String saltHashPassword = Base64.getEncoder().encodeToString(salt) + "PASSYWORDY" + get_SHA_256_SecurePassword(password,salt);
-	            System.out.println("PASSWORD ON SINGUP: " + password);
-	            System.out.println("SALT ON SIGNUP: " + Arrays.toString(salt));
+//	            System.out.println("PASSWORD ON SINGUP: " + password);
+//	            System.out.println("SALT ON SIGNUP: " + Arrays.toString(salt));
 
 	            OutputStream output = new FileOutputStream("config.properties");
 	            prop.setProperty(username, saltHashPassword);
 	            prop.store(output, null);
 	            output.close();
-	            System.out.println(Arrays.toString(salt));
+//	            System.out.println(Arrays.toString(salt));
 	            return "joined!";
 
 	        } catch (Exception io) {	        	
@@ -103,7 +103,7 @@ public class Authentication {
 	    
 	    public static String signIn(String username, String password)
 	    {	
-	    	System.out.println("SIGN IN YA 7amadaaaaa");
+//	    	System.out.println("SIGN IN YA 7amadaaaaa");
 	    	Properties prop = new Properties();
 	    	try 
 	    	{
@@ -122,22 +122,22 @@ public class Authentication {
 	            {
 	            	String [] vals = value.split("PASSYWORDY");
 	            	byte [] salt = Base64.getDecoder().decode(vals[0]);
-	            	System.out.println("PASSWORD ON SIGNIN: " + password);
-	            	System.out.println("SALT ON SIGNIN " + Arrays.toString(salt));
-	            	System.out.println("SALT STRING ON SIGNIN: " + new String(salt));
+//	            	System.out.println("PASSWORD ON SIGNIN: " + password);
+//	            	System.out.println("SALT ON SIGNIN " + Arrays.toString(salt));
+//	            	System.out.println("SALT STRING ON SIGNIN: " + new String(salt));
 	            	String filePassword = vals[1];
 	            	
 	            	String hashedPassword = get_SHA_256_SecurePassword(password, salt);
 
 	            	if(filePassword.equals(hashedPassword))
 	            	{
-	            		System.out.println("LOLOLOLOLEEEEYYYY");
+	            		System.out.println("SIGNED IN");
 	            		return "joined!";
 	            	}
 	            	else 
 	            	{
-	            		System.out.println("STORED PASSWORD: " + filePassword);
-	            		System.out.println("COMPUTED PASSWORD: " + hashedPassword);
+//	            		System.out.println("STORED PASSWORD: " + filePassword);
+//	            		System.out.println("COMPUTED PASSWORD: " + hashedPassword);
 	            		return "Incorrect username or password. Please try again!";
 	            	}
 	            	

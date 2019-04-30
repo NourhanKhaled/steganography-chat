@@ -29,10 +29,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 import javax.imageio.ImageIO;
-import org.apache.commons.io.FileUtils;
 
 public class GUIClient extends JFrame {
-
+	String key = "Bar12345Bar12345"; // 128 bit key
+    String initVector = "RandomInitVector"; // 16 bytes IV
 	JPanel contentPane;
 	JLabel label1;
 	JTextArea nameArea;
@@ -41,7 +41,6 @@ public class GUIClient extends JFrame {
 	JButton signUp;
 	JLabel afterName;
 	JTextArea chat;
-	JButton allMembers;
 	JTextArea textArea;
 	JTextArea destination;
 	JLabel destinationLabel;
@@ -51,6 +50,7 @@ public class GUIClient extends JFrame {
 	JButton sendAll;
 	JButton quitButton;
 	JButton serverMembers;
+	JButton imageSelect;
 	JScrollPane chatS;
 	JScrollBar scrollBar;
 	static Socket clientSocket;
@@ -120,7 +120,6 @@ public class GUIClient extends JFrame {
 									passwordArea.setVisible(false);
 									chatS.setVisible(true);
 									quitButton.setVisible(true);
-									allMembers.setVisible(true);
 									destinationLabel.setVisible(true);
 									messageLabel.setVisible(true);
 									destination.setVisible(true);
@@ -128,6 +127,7 @@ public class GUIClient extends JFrame {
 									serverMembers.setVisible(true);
 									send.setVisible(true);
 									sendAll.setVisible(true);
+									imageSelect.setVisible(true);
 									contentPane.repaint();
 									contentPane.revalidate();
 								} else {
@@ -139,15 +139,19 @@ public class GUIClient extends JFrame {
 //										chat.append(serveroutput+"\n");
 										String[] vals = serveroutput.split(";");
 										String source = vals[0]; // TODO split from
+										
 										byte[] imageContent = Base64.getDecoder().decode(vals[1]);
 										ByteArrayInputStream bis = new ByteArrayInputStream(imageContent);
 										BufferedImage bImage2 = ImageIO.read(bis);
 										ImageIO.write(bImage2, "png", new File("output.png"));
-										String message = steg.decode("output.png");
-										String decodedMessage = new String(message);
-
-										chat.append(source + " " + decodedMessage + "\n");
-										System.out.println("DECODED MESSAGE " + decodedMessage);
+										String decodedMessage = steg.decode("output.png");
+//										String decodedMessage = new String(message);
+										String decryptedMessage = EncryptDecrypt.decrypt(key, initVector, decodedMessage);
+										chat.append(source + " " + decryptedMessage + "\n");
+										System.out.println("DECODED MESSAGE " + decryptedMessage);
+										
+//										chat.append(source +  "\n");
+										System.out.println("DECODED END!");
 
 									}
 
@@ -173,7 +177,7 @@ public class GUIClient extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		label1 = new JLabel("Enter your name here to sign in :)");
+		label1 = new JLabel("Enter a name and a password :)");
 		label1.setBounds(6, 82, 219, 31);
 		contentPane.add(label1);
 
@@ -203,8 +207,9 @@ public class GUIClient extends JFrame {
 						// TODO: ENCRYPT AND SEND PASSWORD
 						// System.out.println("INSERTED PASSWORD " +passwordArea.getText());
 						String output = "signIn(" + nameArea.getText() + "," + passwordArea.getText() + ")\n";
-						// output = EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector",
-						// output) + "\n";
+//						 output = EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector",
+//						 output) + "\n";
+						
 						System.out.println(output);
 						outToServer.writeBytes(output);
 						passwordArea.setText("");
@@ -266,23 +271,6 @@ public class GUIClient extends JFrame {
 		chatS.setVisible(false);
 		contentPane.add(chatS);
 
-		allMembers = new JButton("All members");
-		allMembers.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-
-					outToServer.writeBytes("GetMemberList()\n");
-
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		});
-		allMembers.setBounds(342, 29, 96, 22);
-		allMembers.setVisible(false);
-		contentPane.add(allMembers);
-
 		quitButton = new JButton("Quit");
 		quitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -297,7 +285,7 @@ public class GUIClient extends JFrame {
 
 			}
 		});
-		quitButton.setBounds(336, 95, 102, 29);
+		quitButton.setBounds(346, 95, 102, 29);
 		quitButton.setVisible(false);
 		contentPane.add(quitButton);
 
@@ -323,7 +311,7 @@ public class GUIClient extends JFrame {
 		contentPane.add(message);
 
 		send = new JButton("Send");
-		send.setBounds(366, 299, 72, 29);
+		send.setBounds(366, 290, 72, 29);
 		send.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				send();
@@ -339,9 +327,10 @@ public class GUIClient extends JFrame {
 		imageChooser.addChoosableFileFilter(new FileNameExtensionFilter("JPG files", "jpg"));
 		imageChooser.addChoosableFileFilter(new FileNameExtensionFilter("GIF files", "gif"));
 
-		JButton imageSelect = new JButton("Image");
-		imageSelect.setBounds(366, 200, 72, 29);
+		imageSelect = new JButton("Image");
+		imageSelect.setBounds(366, 240, 72, 29);
 		imageSelect.setFocusable(false);
+		imageSelect.setVisible(false);
 		imageSelect.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent arg0) {
@@ -356,7 +345,7 @@ public class GUIClient extends JFrame {
 		contentPane.add(imageSelect);
 
 		sendAll = new JButton("Send All");
-		sendAll.setBounds(366, 250, 72, 29);
+		sendAll.setBounds(366, 320, 92, 29);
 		sendAll.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sendAll();
@@ -378,8 +367,7 @@ public class GUIClient extends JFrame {
 
 			}
 		});
-		serverMembers.setFont(new Font("Lucida Grande", Font.PLAIN, 10));
-		serverMembers.setBounds(342, 66, 102, 29);
+		serverMembers.setBounds(342, 46, 122, 37);
 		serverMembers.setVisible(false);
 		contentPane.add(serverMembers);
 
@@ -417,9 +405,10 @@ public class GUIClient extends JFrame {
 					chat.append("Please choose an image before sending!");
 					return;
 				}
+				String encryptedMessage = EncryptDecrypt.encrypt(key, initVector, message.getText());
 
 				boolean success = steg.encode(file.getParent(), file.getName(), "jpg", "encoded_" + file.getName(),
-						message.getText());
+						encryptedMessage);
 				String newName = file.getParent() + "/encoded_" + file.getName() + ".png";
 
 				File encFile = new File(newName);
@@ -431,12 +420,12 @@ public class GUIClient extends JFrame {
 				String encodedString = Base64.getEncoder().encodeToString(imageContent);
 
 //			System.out.println("encoded " + encodedString);
-//			outToServer.writeBytes(EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector", encodedString));
-				outToServer.writeBytes("Chat:" + destination.getText() + ";" + encodedString + "\n");
+			//outToServer.writeBytes(EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector", encodedString));
+			outToServer.writeBytes("Chat:" + destination.getText() + ";" + encodedString + "\n");
 
-//			String res = steg.decode(newName);
-//			chat.append("To: " + destination.getText() + " Message: " + message.getText() + "\n" );
-				destination.setText(null);
+			String res = steg.decode(newName);
+			chat.append("To: " + destination.getText() + " Message: " + message.getText() + "\n" );
+			destination.setText(null);
 
 				message.setText("");
 			} catch (IOException e1) {
@@ -453,8 +442,9 @@ public class GUIClient extends JFrame {
 
 		else {
 			try {
+				String encryptedMessage = EncryptDecrypt.encrypt(key, initVector, message.getText());
 				boolean success = steg.encode(file.getParent(), file.getName(), "jpg", "encoded_" + file.getName(),
-						message.getText());
+						encryptedMessage);
 				String newName = file.getParent() + "/encoded_" + file.getName() + ".png";
 
 				File encFile = new File(newName);
