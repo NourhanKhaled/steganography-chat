@@ -61,7 +61,7 @@ public class Authentication {
 	            
 	            byte [] salt = getSalt();
 	            
-	            String saltHashPassword = Base64.getEncoder().encodeToString(salt) + "PASSYWORDY" + get_SHA_256_SecurePassword(password,salt);
+	            String saltHashPassword = Base64.getEncoder().encodeToString(salt) + "###" + get_SHA_256_SecurePassword(password,salt);
 //	            System.out.println("PASSWORD ON SINGUP: " + password);
 //	            System.out.println("SALT ON SIGNUP: " + Arrays.toString(salt));
 
@@ -99,7 +99,7 @@ public class Authentication {
 	            }
 	            else 
 	            {
-	            	String [] vals = value.split("PASSYWORDY");
+	            	String [] vals = value.split("###");
 	            	byte [] salt = Base64.getDecoder().decode(vals[0]);
 //	            	System.out.println("PASSWORD ON SIGNIN: " + password);
 //	            	System.out.println("SALT ON SIGNIN " + Arrays.toString(salt));
