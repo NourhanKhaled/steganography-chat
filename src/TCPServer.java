@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 public class TCPServer implements Runnable {
+	String key = "Bar12345Bar12345"; // 128 bit key
+    String initVector = "RandomInitVector"; // 16 bytes IV
 	static ArrayList<String> members = new ArrayList<>();
 	static ArrayList<String> Allmembers = new ArrayList<>();
 	static ArrayList<Socket> sockets = new ArrayList<>();
@@ -247,7 +249,7 @@ public class TCPServer implements Runnable {
 		String x = serverInput.substring(7, serverInput.length() - 1);
 		String[] vals = x.split(",");
 		String username = vals[0];
-		String password = vals[1];
+		String password = EncryptDecrypt.decrypt(key, initVector, vals[1]);
 
 		String response = Authentication.signIn(username, password);
 		if (response.equals("joined!")) {

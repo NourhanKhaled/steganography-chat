@@ -206,7 +206,8 @@ public class GUIClient extends JFrame {
 					try {
 						// TODO: ENCRYPT AND SEND PASSWORD
 						// System.out.println("INSERTED PASSWORD " +passwordArea.getText());
-						String output = "signIn(" + nameArea.getText() + "," + passwordArea.getText() + ")\n";
+						String password = EncryptDecrypt.encrypt(key, initVector, passwordArea.getText());
+						String output = "signIn(" + nameArea.getText() + "," + password + ")\n";
 //						 output = EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector",
 //						 output) + "\n";
 						
