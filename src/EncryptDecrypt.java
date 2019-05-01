@@ -14,7 +14,7 @@ public class EncryptDecrypt {
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
 
             byte[] encrypted = cipher.doFinal(value.getBytes());
-
+            System.out.println("***CIPHERTEXT LENGTH " + encrypted.length * 8 + " BYTES");
             Base64.Encoder encoder = Base64.getEncoder();
             String encryptedText = encoder.encodeToString(encrypted);
 

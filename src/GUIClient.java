@@ -31,7 +31,8 @@ import javax.swing.border.EmptyBorder;
 import javax.imageio.ImageIO;
 
 public class GUIClient extends JFrame {
-	String key = "Bar12345Bar12345"; // 128 bit key
+	
+	String key = "ShVmYq3s6v9y$B&E"; // 128 bit key
     String initVector = "RandomInitVector"; // 16 bytes IV
 	JPanel contentPane;
 	JLabel label1;
@@ -106,8 +107,21 @@ public class GUIClient extends JFrame {
 						serveroutput = inFromServer.readLine();
 						// System.out.println(serveroutput);
 						if (serveroutput != null) {
-							// System.out.println("OUTPUT: " + serveroutput);
-							if (serveroutput.equals("Not joined")) {
+							System.out.println("OUTPUT: " + serveroutput);
+							if(serveroutput.equals("Username does not exist.")){
+								afterName.setText("Username does not exist.");
+								afterName.setVisible(true);
+							}
+							else if(serveroutput.equals("Username exists.")){
+								afterName.setText("Username exists.");
+								afterName.setVisible(true);
+							}
+							
+							else if(serveroutput.equals("Incorrect username or password. Please try again!")){
+								afterName.setText("Incorrect username or password. Please try again!");
+								afterName.setVisible(true);
+							}
+							else if (serveroutput.equals("Not joined")) {
 								afterName.setText("Name already in use, choose another one");
 								afterName.setVisible(true);
 							} else {
@@ -147,7 +161,7 @@ public class GUIClient extends JFrame {
 										String decodedMessage = steg.decode("output.png");
 //										String decodedMessage = new String(message);
 										String decryptedMessage = EncryptDecrypt.decrypt(key, initVector, decodedMessage);
-										chat.append(source + " " + decryptedMessage + "\n");
+										chat.append(source + ": " + decryptedMessage + "\n");
 										System.out.println("DECODED MESSAGE " + decryptedMessage);
 										
 //										chat.append(source +  "\n");
@@ -228,7 +242,7 @@ public class GUIClient extends JFrame {
 		signUp.setBounds(282, 180, 117, 29);
 		signUp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				
 				if (nameArea.getText().contains(",")) {
 					afterName.setText("Your name can not contain a','");
 					afterName.setVisible(true);
@@ -239,7 +253,8 @@ public class GUIClient extends JFrame {
 					afterName.setText("Please enter a password!");
 				} else {
 					try {
-						outToServer.writeBytes("signUp(" + nameArea.getText() + "," + passwordArea.getText() + ")\n");
+						String password = EncryptDecrypt.encrypt(key, initVector, passwordArea.getText());
+						outToServer.writeBytes("signUp(" + nameArea.getText() + "," + password + ")\n");
 
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
@@ -252,7 +267,7 @@ public class GUIClient extends JFrame {
 		contentPane.add(signUp);
 
 		afterName = new JLabel("Name already in use, choose another one");
-		afterName.setBounds(6, 221, 258, 33);
+		afterName.setBounds(6, 231, 338, 53);
 		afterName.setForeground(Color.BLACK);
 		afterName.setFont(new Font("Lucida Grande", Font.BOLD, 12));
 		afterName.setVisible(false);
@@ -421,7 +436,7 @@ public class GUIClient extends JFrame {
 			outToServer.writeBytes("Chat:" + destination.getText() + ";" + encodedString + "\n");
 
 			String res = steg.decode(newName);
-			chat.append("To: " + destination.getText() + " Message: " + message.getText() + "\n" );
+			chat.append("To " + destination.getText() + ": "+ message.getText() + "\n" );
 			destination.setText(null);
 
 				message.setText("");

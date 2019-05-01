@@ -44,8 +44,8 @@ public class PSNR {
 	}
 	public static void main(String[] args) throws IOException {
 		System.out.println(System.getProperty("user.dir"));
-		BufferedImage image1 = ImageIO.read(new File("/home/radwa/eclipse-workspace/Security/src/image.jpg"));
-		BufferedImage image2 = ImageIO.read(new File("/home/radwa/eclipse-workspace/Security/src/encoded_image.jpg.png"));
+		BufferedImage image1 = ImageIO.read(new File("/home/radwa/eclipse-workspace/Security/src/sec.jpg"));
+		BufferedImage image2 = ImageIO.read(new File("/home/radwa/eclipse-workspace/Security/src/encoded_sec.jpg.png"));
 		String ratio = PSNR.MSE(image1, image2);
 		System.out.println(ratio);
 	}
