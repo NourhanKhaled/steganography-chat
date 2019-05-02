@@ -26,5 +26,5 @@ To configure the project’s environment:
                d. For speed purposes, choose image that is not too large, preferably in the range of Kilobytes.
                e. Press send.
  
- **Important note:** This application was created using Eclipse IDE. We have removed all Eclipse-related files (.project, .classpath..etc.) to give you the freedom to run from the terminal. If you want to run it via Eclipse, please create an empty Eclipse project and copy the code files into its default package and copy the file ``config.properties`` into its ``src`` directory. 
+ **Important note:** This application was created using Eclipse IDE. We have removed all Eclipse-related files (.project, .classpath..etc.) to give you the freedom to run from the terminal. If you want to run it via Eclipse, please create an empty Eclipse project and copy the code files into its default package. 
  
