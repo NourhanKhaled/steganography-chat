@@ -28,3 +28,5 @@ To configure the project’s environment:
  
  **Important note:** This application was created using Eclipse IDE. We have removed all Eclipse-related files (.project, .classpath..etc.) to give you the freedom to run from the terminal. If you want to run it via Eclipse, please create an empty Eclipse project and copy the code files into its default package. 
  
+ Demo video: https://drive.google.com/file/d/1p1NGd5XKN1NgdJSW7RiEM0tt_W1uOT6G/view
+ 
