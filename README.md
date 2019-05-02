@@ -2,6 +2,7 @@
 A chat application which applies steganographic techniques to relay secret messages back and forth between multiple users.
 
 To configure the project’s environment:
+
         1. Have Java 11 installed
         
         2. Open Eclipse.
