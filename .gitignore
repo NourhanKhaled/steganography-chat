@@ -1,6 +1,6 @@
 src/config.properties
+src/*.class
 .classpath
 .project
 .settings
-.class
 bin/
