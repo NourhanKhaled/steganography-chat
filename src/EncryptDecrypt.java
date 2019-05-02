@@ -4,6 +4,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import java.util.Base64;
 
+// This class is used for encrypting and decrypting using AES-128
 public class EncryptDecrypt {
     public static String encrypt(String key, String initVector, String value) {
         try {

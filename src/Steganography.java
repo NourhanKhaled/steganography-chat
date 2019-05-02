@@ -1,4 +1,4 @@
- 
+// credits https://www.dreamincode.net/forums/topic/27950-steganography/ 
 /*
  *@author  William_Wilson
  *@version 1.6
@@ -254,10 +254,8 @@ public class Steganography
 	 */
 	public byte[] decode_text(byte[] image)
 	{
-		System.out.println(1);
 		int length = 0;
 		int offset  = 32;
-		System.out.println("2!!");
 
 		//loop through 32 bytes of data to determine text length
 		for(int i=0; i<32; ++i) //i=24 will also work, as only the 4th byte contains real data
@@ -268,7 +266,6 @@ public class Steganography
 		byte[] result = new byte[length];
 		
 		//loop through each byte of text
-		System.out.println("3!!");
 		for(int b=0; b<result.length; ++b )
 		{
 			//loop through each bit within a byte of text
@@ -277,9 +274,7 @@ public class Steganography
 				//assign bit: [(new byte value) << 1] OR [(text byte) AND 1]
 				result[b] = (byte)((result[b] << 1) | (image[offset] & 1));
 			}
-			System.out.println("4!!");
 		}
-		System.out.println("5!!");
 		return result;
 	}
 }

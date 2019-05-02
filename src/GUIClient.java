@@ -105,9 +105,7 @@ public class GUIClient extends JFrame {
 					try {
 						inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 						serveroutput = inFromServer.readLine();
-						// System.out.println(serveroutput);
 						if (serveroutput != null) {
-							System.out.println("OUTPUT: " + serveroutput);
 							if(serveroutput.equals("Username does not exist.")){
 								afterName.setText("Username does not exist.");
 								afterName.setVisible(true);
@@ -125,6 +123,7 @@ public class GUIClient extends JFrame {
 								afterName.setText("Name already in use, choose another one");
 								afterName.setVisible(true);
 							} else {
+								// successful sign in 
 								if (serveroutput.equals("joined!")) {
 									signIn.setVisible(false);
 									signUp.setVisible(false);
@@ -145,26 +144,23 @@ public class GUIClient extends JFrame {
 									contentPane.repaint();
 									contentPane.revalidate();
 								} else {
+									// displaying active members
 									if (serveroutput.contains("Members:")) {
 										chat.append(serveroutput + "\n");
 										chat.repaint();
 										chat.revalidate();
 									} else if (serveroutput.length() > 0) {
-//										chat.append(serveroutput+"\n");
+										// decoding encoded message from image
 										String[] vals = serveroutput.split(";");
-										String source = vals[0]; // TODO split from
-										
+										String source = vals[0]; 
 										byte[] imageContent = Base64.getDecoder().decode(vals[1]);
 										ByteArrayInputStream bis = new ByteArrayInputStream(imageContent);
 										BufferedImage bImage2 = ImageIO.read(bis);
 										ImageIO.write(bImage2, "png", new File("output.png"));
 										String decodedMessage = steg.decode("output.png");
-//										String decodedMessage = new String(message);
 										String decryptedMessage = EncryptDecrypt.decrypt(key, initVector, decodedMessage);
 										chat.append(source + ": " + decryptedMessage + "\n");
-										System.out.println("DECODED MESSAGE " + decryptedMessage);
 										
-//										chat.append(source +  "\n");
 										System.out.println("DECODED END!");
 
 									}
@@ -172,7 +168,6 @@ public class GUIClient extends JFrame {
 								}
 							}
 
-							// System.out.println(serveroutput);
 						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -218,14 +213,9 @@ public class GUIClient extends JFrame {
 					afterName.setText("Please enter a password!");
 				} else {
 					try {
-						// TODO: ENCRYPT AND SEND PASSWORD
-						// System.out.println("INSERTED PASSWORD " +passwordArea.getText());
+						// encrypting password before sending to server
 						String password = EncryptDecrypt.encrypt(key, initVector, passwordArea.getText());
 						String output = "signIn(" + nameArea.getText() + "," + password + ")\n";
-//						 output = EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector",
-//						 output) + "\n";
-						
-						System.out.println(output);
 						outToServer.writeBytes(output);
 						passwordArea.setText("");
 					} catch (IOException e1) {
@@ -346,10 +336,8 @@ public class GUIClient extends JFrame {
 		imageSelect.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent arg0) {
+				// setting file path to selected image
 				selectImage();
-				// System.out.println(""+imageChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY));
-				// System.out.println(imageChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES));
-
 			}
 
 		});
@@ -370,7 +358,7 @@ public class GUIClient extends JFrame {
 		serverMembers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-
+					// requesting list of active members from server
 					outToServer.writeBytes("GetMembers()\n");
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
@@ -384,26 +372,22 @@ public class GUIClient extends JFrame {
 		contentPane.add(serverMembers);
 
 	}
-
+	
+	// sets file of image to selected image from file chooser
 	private void selectImage() {
 		int returnVal = imageChooser.showDialog(this, "Open");
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			try {
 				file = imageChooser.getSelectedFile();
-				// System.out.println(file.getName());
-				// System.out.println(file.getParent());
 				img = ImageIO.read(imageChooser.getSelectedFile());
 
-//				format = HidePanel.getImageFormat(imageChooser.getSelectedFile());
-//				int c = new StegoImage(img, StegoImage.HIDE_MODE).getMaxHideCapacity();
-//				String msg = "The hide capacity for \"" + imageChooser.getSelectedFile().getName() + "\" is " + c + " bytes";
-//				messageDialog.showInfo(msg);
+
 			} catch (Exception ex) {
-//				messageDialog.showError("Could not read the image");
 			}
 		}
 	}
 
+	// encrypts message, encodes it in image then sends to server to send to recepient
 	private void send() {
 		if (message.getText().length() == 0)
 			chat.append("You must enter a message\n");
@@ -412,7 +396,6 @@ public class GUIClient extends JFrame {
 
 		else {
 			try {
-				// TODO: Call steganography , encrypt then send message to server
 				if (file == null) {
 					chat.append("Please choose an image before sending!");
 					return;
@@ -431,8 +414,7 @@ public class GUIClient extends JFrame {
 				System.out.println("SENDER IMAGE LENGTH " + imageContent.length);
 				String encodedString = Base64.getEncoder().encodeToString(imageContent);
 
-//			System.out.println("encoded " + encodedString);
-			//outToServer.writeBytes(EncryptDecrypt.encrypt("Bar12345Bar12345", "RandomInitVector", encodedString));
+
 			outToServer.writeBytes("Chat:" + destination.getText() + ";" + encodedString + "\n");
 
 			String res = steg.decode(newName);
@@ -447,6 +429,7 @@ public class GUIClient extends JFrame {
 		}
 	}
 
+	//encrypts message, encodes it in image then sends to server to send to all active members
 	private void sendAll() {
 
 		if (message.getText().length() == 0)
