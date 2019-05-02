@@ -14,7 +14,8 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 public class Authentication {
-	     
+	
+		// credits: https://howtodoinjava.com/security/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
 	    public static String get_SHA_256_SecurePassword(String passwordToHash, byte[] salt)
 	    {
 	    	String generatedPassword = null;
@@ -45,6 +46,8 @@ public class Authentication {
 	        return salt;
 	    }
 	    
+	    // returns sign up response according to entered username and password
+	    // saves salt and password in config file
 	    public static String signUp(String username, String password)
 	    {
 	    	Properties prop = new Properties();
@@ -62,14 +65,12 @@ public class Authentication {
 	            byte [] salt = getSalt();
 	            
 	            String saltHashPassword = Base64.getEncoder().encodeToString(salt) + "###" + get_SHA_256_SecurePassword(password,salt);
-//	            System.out.println("PASSWORD ON SINGUP: " + password);
-//	            System.out.println("SALT ON SIGNUP: " + Arrays.toString(salt));
+
 
 	            OutputStream output = new FileOutputStream("config.properties");
 	            prop.setProperty(username, saltHashPassword);
 	            prop.store(output, null);
 	            output.close();
-//	            System.out.println(Arrays.toString(salt));
 	            return "joined!";
 
 	        } catch (Exception io) {	        	
@@ -80,9 +81,10 @@ public class Authentication {
 	    	
 	    }
 	    
+	    // returns response string of sign in according to inserted username and password
+	    // searches config file for username and hashed password
 	    public static String signIn(String username, String password)
 	    {	
-//	    	System.out.println("SIGN IN YA 7amadaaaaa");
 	    	Properties prop = new Properties();
 	    	try 
 	    	{
@@ -101,9 +103,6 @@ public class Authentication {
 	            {
 	            	String [] vals = value.split("###");
 	            	byte [] salt = Base64.getDecoder().decode(vals[0]);
-//	            	System.out.println("PASSWORD ON SIGNIN: " + password);
-//	            	System.out.println("SALT ON SIGNIN " + Arrays.toString(salt));
-//	            	System.out.println("SALT STRING ON SIGNIN: " + new String(salt));
 	            	String filePassword = vals[1];
 	            	
 	            	String hashedPassword = get_SHA_256_SecurePassword(password, salt);
@@ -115,8 +114,6 @@ public class Authentication {
 	            	}
 	            	else 
 	            	{
-//	            		System.out.println("STORED PASSWORD: " + filePassword);
-//	            		System.out.println("COMPUTED PASSWORD: " + hashedPassword);
 	            		return "Incorrect username or password. Please try again!";
 	            	}
 	            	
