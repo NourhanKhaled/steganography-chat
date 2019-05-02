@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -50,7 +51,9 @@ public class Authentication {
 	    	Properties prop = new Properties();
 	    	try 
 	    	{
-	    		InputStream input = new FileInputStream("config.properties");
+	    		File configFile = new File("config.properties");
+	            configFile.createNewFile();
+	    		InputStream input = new FileInputStream(configFile);
 	            prop.load(input);
 	            
 	            if(prop.getProperty(username) != null)
@@ -64,8 +67,8 @@ public class Authentication {
 	            String saltHashPassword = Base64.getEncoder().encodeToString(salt) + "###" + get_SHA_256_SecurePassword(password,salt);
 //	            System.out.println("PASSWORD ON SINGUP: " + password);
 //	            System.out.println("SALT ON SIGNUP: " + Arrays.toString(salt));
-
-	            OutputStream output = new FileOutputStream("config.properties");
+	            
+	            OutputStream output = new FileOutputStream(configFile);
 	            prop.setProperty(username, saltHashPassword);
 	            prop.store(output, null);
 	            output.close();
@@ -86,7 +89,9 @@ public class Authentication {
 	    	Properties prop = new Properties();
 	    	try 
 	    	{
-	    		InputStream input = new FileInputStream("config.properties");
+	    		File configFile = new File("config.properties");
+	            configFile.createNewFile();
+	    		InputStream input = new FileInputStream(configFile);
 	            prop.load(input);
 	            
 	            String value = prop.getProperty(username);	            
